@@ -1,0 +1,26 @@
+{
+  "name": "@nodulus/cache",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "typescript": {
+    "definition": "index.d.ts"
+  },
+  "scripts": {
+    "test": "mocha tests --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nodulusteam/-nodulus-cache"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.5.3",
+    "typescript": "^1.8.10"
+  },
+  "dependencies": {
+    "@nodulus/data": "^1.0.7"
+  }
+}
