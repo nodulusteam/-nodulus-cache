@@ -19,10 +19,22 @@
 `public get(collection_name: string, array_of_keys:[string] || single_key:string, callback: Function, asObject: boolean)`
 
 ```
- cache.get(collection_name:string, array_of_keys:[string] || single_key:string, callback(result) {
+ cache.get("my-collection", "12345678", function(result) {
         var my_array = result;
  }, false);
-
-
  
  ```  
+
+
+
+
+`public getCollection(collection_name: string, callback: Function, asObject: boolean)`
+
+```
+ cache.get("my-collection", function(result) {
+        var my_array = result;
+ }, false);
+ 
+ ```  
+
+ 
