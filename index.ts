@@ -36,6 +36,8 @@ class cache extends Singleton {
             else {
                 dal.getSingle(collectioName, tabId, (result: any) => {
                     if (result !== null) {
+                        if (!this.cache[collectioName])
+                            this.cache[collectioName] = {};
                         this.cache[collectioName][tabId] = result;
                         callback(this.cache[collectioName][tabId]);
                         return;
@@ -50,7 +52,7 @@ class cache extends Singleton {
 
             var tabIds = tabId as string[];
             tabIds.forEach((tab_id: string) => {
-                if (!this.cache[collectioName][tab_id] && tab_id !== null) {
+                if (!this.cache[collectioName] || !this.cache[collectioName][tab_id] && tab_id !== null) {
                     arr_for_request.push(tab_id);
                 }
                 else
@@ -59,8 +61,6 @@ class cache extends Singleton {
 
 
             if (arr_for_request.length === 0) {
-
-
                 if (asObject) {
                     callback(resultArr);
                     return;
@@ -82,6 +82,9 @@ class cache extends Singleton {
                 dal.getSet(arr_for_request, collectioName, (result: any) => {
                     if (result !== null) {
                         result.forEach((cacheItem: any) => {
+                            if (!this.cache[collectioName])
+                                this.cache[collectioName] = {};
+                                
                             this.cache[collectioName][cacheItem._id] = cacheItem;
                             resultArr[cacheItem._id] = cacheItem;
                         });

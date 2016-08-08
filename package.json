@@ -1,6 +1,6 @@
 {
   "name": "@nodulus/cache",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "",
   "keywords": [
     "nodulus"
@@ -16,7 +16,7 @@
     "type": "git",
     "url": "https://github.com/nodulusteam/-nodulus-cache"
   },
-  "author": "",
+  "author": "nodulusteam",
   "license": "ISC",
   "devDependencies": {
     "chai": "^3.5.0",

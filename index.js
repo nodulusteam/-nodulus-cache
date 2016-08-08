@@ -38,6 +38,8 @@ var cache = (function (_super) {
             else {
                 dal.getSingle(collectioName, tabId, function (result) {
                     if (result !== null) {
+                        if (!_this.cache[collectioName])
+                            _this.cache[collectioName] = {};
                         _this.cache[collectioName][tabId] = result;
                         callback(_this.cache[collectioName][tabId]);
                         return;
@@ -51,7 +53,7 @@ var cache = (function (_super) {
             var resultArr = {};
             var tabIds = tabId;
             tabIds.forEach(function (tab_id) {
-                if (!_this.cache[collectioName][tab_id] && tab_id !== null) {
+                if (!_this.cache[collectioName] || !_this.cache[collectioName][tab_id] && tab_id !== null) {
                     arr_for_request.push(tab_id);
                 }
                 else
@@ -75,6 +77,8 @@ var cache = (function (_super) {
                 dal.getSet(arr_for_request, collectioName, function (result) {
                     if (result !== null) {
                         result.forEach(function (cacheItem) {
+                            if (!_this.cache[collectioName])
+                                _this.cache[collectioName] = {};
                             _this.cache[collectioName][cacheItem._id] = cacheItem;
                             resultArr[cacheItem._id] = cacheItem;
                         });
