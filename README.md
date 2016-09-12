@@ -1,5 +1,14 @@
 # @nodulus/cache
 
+   
+[![NPM](https://nodei.co/npm/@nodulus/cache.png)](https://npmjs.org/package/@nodulus/cache)
+
+ ![Alt text](https://travis-ci.org/nodulusteam/-nodulus-cache.svg?branch=master "build")
+ ![Alt text](https://david-dm.org/nodulusteam/-nodulus-cache.svg "dependencies")
+ 
+
+
+
  cache component for nodulus.
     
 
