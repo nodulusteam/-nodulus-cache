@@ -10,7 +10,7 @@
  ### usage
  ```
  
- var cache=require("@nodulus/cache").cache;
+ var cache=require("@nodulus/cache");
  
 
  ```

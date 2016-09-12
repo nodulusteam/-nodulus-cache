@@ -26,20 +26,21 @@ class cache extends Singleton {
         return cache._instance;
     }
 
-    public get(collectioName: string, tabId: any, callback: Function, asObject: boolean) {
+    public get(collectioName: string, itemKey: any, callback: Function, asObject: boolean) {
         //single item request
-        if (typeof (tabId) === 'string') {
-            if (this.cache[collectioName] && this.cache[collectioName][tabId]) {
-                callback(this.cache[collectioName][tabId]);
+        if (typeof (itemKey) === 'string') {
+            if (this.cache[collectioName] && this.cache[collectioName][itemKey]) {
+                callback(this.cache[collectioName][itemKey]);
                 return;
             }
             else {
-                dal.getSingle(collectioName, tabId, (result: any) => {
+                dal.getSingle(collectioName, itemKey, (result: any) => {
                     if (result !== null) {
                         if (!this.cache[collectioName])
                             this.cache[collectioName] = {};
-                        this.cache[collectioName][tabId] = result;
-                        callback(this.cache[collectioName][tabId]);
+                        this.cache[collectioName][itemKey] = result;
+
+                        callback(JSON.parse(JSON.stringify(this.cache[collectioName][itemKey])));
                         return;
                     }
                 });
@@ -50,7 +51,7 @@ class cache extends Singleton {
             var arr_for_request: any = [];
             var resultArr: any = {};
 
-            var tabIds = tabId as string[];
+            var tabIds = itemKey as string[];
             tabIds.forEach((tab_id: string) => {
                 if (!this.cache[collectioName] || !this.cache[collectioName][tab_id] && tab_id !== null) {
                     arr_for_request.push(tab_id);
@@ -70,7 +71,7 @@ class cache extends Singleton {
                     for (var cname in resultArr) {
                         asArr1.push(resultArr[cname]);
                     }
-                    callback(asArr1);
+                    callback(JSON.parse(JSON.stringify(asArr1)));
                     return;
                 }
 
@@ -84,14 +85,14 @@ class cache extends Singleton {
                         result.forEach((cacheItem: any) => {
                             if (!this.cache[collectioName])
                                 this.cache[collectioName] = {};
-                                
+
                             this.cache[collectioName][cacheItem._id] = cacheItem;
                             resultArr[cacheItem._id] = cacheItem;
                         });
 
 
                         if (asObject) {
-                            callback(resultArr);
+                            callback(JSON.parse(JSON.stringify(resultArr)));
                             return;
                         }
                         else {
@@ -99,7 +100,7 @@ class cache extends Singleton {
                             for (var cname in resultArr) {
                                 asArr.push(resultArr[cname]);
                             }
-                            callback(asArr);
+                            callback(JSON.parse(JSON.stringify(asArr)));
                             return;
                         }
                     }
@@ -125,7 +126,7 @@ class cache extends Singleton {
                 callback(obj);
             }
             else
-                callback(this.cache[collectioName]);
+                callback(JSON.parse(JSON.stringify(this.cache[collectioName])));
             return;
         }
         else {
@@ -140,10 +141,10 @@ class cache extends Singleton {
                             obj[item._id] = item;
 
                         });
-                        callback(obj);
+                        callback(JSON.parse(JSON.stringify(obj)));
                     }
                     else
-                        callback(this.cache[collectioName]);
+                        callback(JSON.parse(JSON.stringify(this.cache[collectioName])));
                     return;
                 }
 
@@ -156,6 +157,14 @@ class cache extends Singleton {
     }
 
 
-}
 
-exports.cache = cache.getInstance();
+
+    public expire(collectioName: string, itemKey: string) {
+        if (itemKey.toString)
+            itemKey = itemKey.toString();
+
+        if (this.cache[collectioName] && this.cache[collectioName][itemKey])
+            delete this.cache[collectioName][itemKey];
+    }
+}
+exports = module.exports = cache.getInstance();

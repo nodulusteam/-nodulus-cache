@@ -27,21 +27,21 @@ var cache = (function (_super) {
     cache.getInstance = function () {
         return cache._instance;
     };
-    cache.prototype.get = function (collectioName, tabId, callback, asObject) {
+    cache.prototype.get = function (collectioName, itemKey, callback, asObject) {
         var _this = this;
         //single item request
-        if (typeof (tabId) === 'string') {
-            if (this.cache[collectioName] && this.cache[collectioName][tabId]) {
-                callback(this.cache[collectioName][tabId]);
+        if (typeof (itemKey) === 'string') {
+            if (this.cache[collectioName] && this.cache[collectioName][itemKey]) {
+                callback(this.cache[collectioName][itemKey]);
                 return;
             }
             else {
-                dal.getSingle(collectioName, tabId, function (result) {
+                dal.getSingle(collectioName, itemKey, function (result) {
                     if (result !== null) {
                         if (!_this.cache[collectioName])
                             _this.cache[collectioName] = {};
-                        _this.cache[collectioName][tabId] = result;
-                        callback(_this.cache[collectioName][tabId]);
+                        _this.cache[collectioName][itemKey] = result;
+                        callback(JSON.parse(JSON.stringify(_this.cache[collectioName][itemKey])));
                         return;
                     }
                 });
@@ -51,7 +51,7 @@ var cache = (function (_super) {
             //array item request
             var arr_for_request = [];
             var resultArr = {};
-            var tabIds = tabId;
+            var tabIds = itemKey;
             tabIds.forEach(function (tab_id) {
                 if (!_this.cache[collectioName] || !_this.cache[collectioName][tab_id] && tab_id !== null) {
                     arr_for_request.push(tab_id);
@@ -69,7 +69,7 @@ var cache = (function (_super) {
                     for (var cname in resultArr) {
                         asArr1.push(resultArr[cname]);
                     }
-                    callback(asArr1);
+                    callback(JSON.parse(JSON.stringify(asArr1)));
                     return;
                 }
             }
@@ -83,7 +83,7 @@ var cache = (function (_super) {
                             resultArr[cacheItem._id] = cacheItem;
                         });
                         if (asObject) {
-                            callback(resultArr);
+                            callback(JSON.parse(JSON.stringify(resultArr)));
                             return;
                         }
                         else {
@@ -91,7 +91,7 @@ var cache = (function (_super) {
                             for (var cname in resultArr) {
                                 asArr.push(resultArr[cname]);
                             }
-                            callback(asArr);
+                            callback(JSON.parse(JSON.stringify(asArr)));
                             return;
                         }
                     }
@@ -110,7 +110,7 @@ var cache = (function (_super) {
                 callback(obj);
             }
             else
-                callback(this.cache[collectioName]);
+                callback(JSON.parse(JSON.stringify(this.cache[collectioName])));
             return;
         }
         else {
@@ -122,16 +122,22 @@ var cache = (function (_super) {
                         _this.cache[collectioName].forEach(function (item) {
                             obj[item._id] = item;
                         });
-                        callback(obj);
+                        callback(JSON.parse(JSON.stringify(obj)));
                     }
                     else
-                        callback(_this.cache[collectioName]);
+                        callback(JSON.parse(JSON.stringify(_this.cache[collectioName])));
                     return;
                 }
             });
         }
     };
+    cache.prototype.expire = function (collectioName, itemKey) {
+        if (itemKey.toString)
+            itemKey = itemKey.toString();
+        if (this.cache[collectioName] && this.cache[collectioName][itemKey])
+            delete this.cache[collectioName][itemKey];
+    };
     cache._instance = new cache();
     return cache;
 }(Singleton));
-exports.cache = cache.getInstance();
+exports = module.exports = cache.getInstance();
