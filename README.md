@@ -3,8 +3,8 @@
    
 [![NPM](https://nodei.co/npm/@nodulus/cache.png)](https://npmjs.org/package/@nodulus/cache)
 
- ![Alt text](https://travis-ci.org/nodulusteam/-nodulus-cache.svg?branch=master "build")
- ![Alt text](https://david-dm.org/nodulusteam/-nodulus-cache.svg "dependencies")
+![Alt text](https://travis-ci.org/nodulusteam/-nodulus-cache.svg?branch=master "build")
+![Alt text](https://david-dm.org/nodulusteam/-nodulus-cache.svg "dependencies")
  
 
 
@@ -25,24 +25,20 @@
  ```
 
 
-`public get(collection_name: string, array_of_keys:[string] || single_key:string, callback: Function, asObject: boolean)`
+`public get(collection_name: string, array_of_keys:[string] || single_key:string,  asObject: boolean)`
 
 ```
- cache.get("my-collection", "12345678", function(result) {
-        var my_array = result;
- }, false);
+ let result = await cache.get("my-collection", "12345678", false);
  
  ```  
 
 
 
 
-`public getCollection(collection_name: string, callback: Function, asObject: boolean)`
+`public getCollection(collection_name: string,  asObject: boolean)`
 
 ```
- cache.get("my-collection", function(result) {
-        var my_array = result;
- }, false);
+  let result = await cache.get("my-collection", false);
  
  ```  
 

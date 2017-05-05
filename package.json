@@ -1,6 +1,6 @@
 {
   "name": "@nodulus/cache",
-  "version": "1.0.17",
+  "version": "2.0.0",
   "description": "",
   "keywords": [
     "nodulus"
@@ -19,21 +19,15 @@
   "author": "nodulusteam",
   "license": "ISC",
   "devDependencies": {
+    "@types/core-js": "^0.9.41",
+    "@types/node": "^7.0.18",
     "chai": "^3.5.0",
     "del": "^2.2.1",
-    "gulp": "^3.9.1",
-    "gulp-bump": "^2.2.0",
-    "gulp-ignore": "^2.0.1",
-    "gulp-publish": "^0.8.7",
-    "gulp-run": "^1.7.1",
-    "gulp-tslint": "^6.0.1",
-    "gulp-typescript": "^2.13.6",
     "mocha": "^2.5.3",
-    "run-sequence": "^1.2.2",
-    "tslint": "^3.13.0",
-    "typescript": "^1.8.10"
+    "tslint": "^3.13.0"
   },
   "dependencies": {
-    "@nodulus/data": "^1.0.7"
+    "@nodulus/data": "*",
+    "typescript": "^2.3.2"
   }
 }

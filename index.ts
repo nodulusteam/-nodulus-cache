@@ -1,12 +1,11 @@
-/// <reference path="./typings/main.d.ts" />
-var util = require('util');
-var fs = require('fs');
-var path = require('path');
-var dal = require("@nodulus/data");
+const util = require('util');
+const fs = require('fs');
+const path = require('path');
+const dal = require('@nodulus/data');
 
 
 
-class Singleton {
+export class Singleton {
     private _initialized: boolean;
 
     private _setSingleton(): void {
@@ -16,34 +15,34 @@ class Singleton {
 
     //get setSingleton() { return this._setSingleton; }
 }
+export class Cache extends Singleton {
+    private static cache: any = {}
+    public static _instance: Cache;
+    public static getInstance(): Cache {
+        if (!this._instance)
+            this._instance = new Cache();
 
-
-
-class cache extends Singleton {
-    private cache: any = {}
-    private static _instance: cache = new cache();
-    public static getInstance(): cache {
-        return cache._instance;
+        return this._instance;
     }
+    public static clone(value: any) {
+        return JSON.parse(JSON.stringify(value));
 
-    public get(collectioName: string, itemKey: any, callback: Function, asObject: boolean) {
+    }
+    public static async get(collectioName: string, itemKey: any, asObject: boolean) {
         //single item request
         if (typeof (itemKey) === 'string') {
             if (this.cache[collectioName] && this.cache[collectioName][itemKey]) {
-                callback(this.cache[collectioName][itemKey]);
-                return;
+                return this.clone(this.cache[collectioName][itemKey]);
+
             }
             else {
-                dal.getSingle(collectioName, itemKey, (result: any) => {
-                    if (result !== null) {
-                        if (!this.cache[collectioName])
-                            this.cache[collectioName] = {};
-                        this.cache[collectioName][itemKey] = result;
-
-                        callback(JSON.parse(JSON.stringify(this.cache[collectioName][itemKey])));
-                        return;
-                    }
-                });
+                let result = await dal.getSingle(collectioName, itemKey);
+                if (result) {
+                    if (!this.cache[collectioName])
+                        this.cache[collectioName] = {};
+                    this.cache[collectioName][itemKey] = result;
+                    return this.clone(this.cache[collectioName][itemKey]);
+                }
             }
         }
         else {
@@ -63,16 +62,16 @@ class cache extends Singleton {
 
             if (arr_for_request.length === 0) {
                 if (asObject) {
-                    callback(resultArr);
-                    return;
+                    return resultArr;
+
                 }
                 else {
                     var asArr1: any = [];
                     for (var cname in resultArr) {
                         asArr1.push(resultArr[cname]);
                     }
-                    callback(JSON.parse(JSON.stringify(asArr1)));
-                    return;
+                    return this.clone(asArr1);
+
                 }
 
 
@@ -80,7 +79,7 @@ class cache extends Singleton {
 
             }
             else {
-                dal.getSet(arr_for_request, collectioName, (result: any) => {
+                let result = await dal.getSet(arr_for_request, collectioName, (result: any) => {
                     if (result !== null) {
                         result.forEach((cacheItem: any) => {
                             if (!this.cache[collectioName])
@@ -92,16 +91,16 @@ class cache extends Singleton {
 
 
                         if (asObject) {
-                            callback(JSON.parse(JSON.stringify(resultArr)));
-                            return;
+                            return this.clone(resultArr);
+
                         }
                         else {
                             var asArr: any = [];
                             for (var cname in resultArr) {
                                 asArr.push(resultArr[cname]);
                             }
-                            callback(JSON.parse(JSON.stringify(asArr)));
-                            return;
+                            return this.clone(asArr);
+
                         }
                     }
                 });
@@ -112,10 +111,7 @@ class cache extends Singleton {
 
 
 
-    public getCollection(collectioName: string, asObject: boolean, callback: Function) {
-
-
-
+    public static async getCollection(collectioName: string, asObject: boolean) {
         if (this.cache[collectioName]) {
             if (asObject) {
                 var obj: any = {};
@@ -123,43 +119,32 @@ class cache extends Singleton {
                     obj[item._id] = item;
 
                 });
-                callback(obj);
+                return obj;
             }
             else
-                callback(JSON.parse(JSON.stringify(this.cache[collectioName])));
-            return;
+                return this.clone(this.cache[collectioName]);
+
         }
         else {
-            dal.getCollection(collectioName, (result: any) => {
-                if (result !== null) {
-                    this.cache[collectioName] = result;
+            let result = await dal.getCollection(collectioName);
+            if (result !== null) {
+                this.cache[collectioName] = result;
+                if (asObject) {
+                    var obj: any = {};
+                    this.cache[collectioName].forEach((item: any) => {
+                        obj[item._id] = item;
 
-
-                    if (asObject) {
-                        var obj: any = {};
-                        this.cache[collectioName].forEach((item: any) => {
-                            obj[item._id] = item;
-
-                        });
-                        callback(JSON.parse(JSON.stringify(obj)));
-                    }
-                    else
-                        callback(JSON.parse(JSON.stringify(this.cache[collectioName])));
-                    return;
+                    });
+                    return this.clone(obj);
                 }
-
-            });
+                else
+                    return this.clone(this.cache[collectioName]);
+            }
         }
-
-
-
-
     }
 
 
-
-
-    public expire(collectioName: string, itemKey: string) {
+    public static expire(collectioName: string, itemKey: string) {
         if (itemKey.toString)
             itemKey = itemKey.toString();
 
@@ -167,4 +152,3 @@ class cache extends Singleton {
             delete this.cache[collectioName][itemKey];
     }
 }
-exports = module.exports = cache.getInstance();

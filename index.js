@@ -1,143 +1,135 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
 };
-/// <reference path="./typings/main.d.ts" />
-var util = require('util');
-var fs = require('fs');
-var path = require('path');
-var dal = require("@nodulus/data");
-var Singleton = (function () {
-    function Singleton() {
-    }
-    Singleton.prototype._setSingleton = function () {
+Object.defineProperty(exports, "__esModule", { value: true });
+const util = require('util');
+const fs = require('fs');
+const path = require('path');
+const dal = require('@nodulus/data');
+class Singleton {
+    _setSingleton() {
         if (this._initialized)
             throw Error('Singleton is already initialized.');
         this._initialized = true;
-    };
-    return Singleton;
-}());
-var cache = (function (_super) {
-    __extends(cache, _super);
-    function cache() {
-        _super.apply(this, arguments);
-        this.cache = {};
     }
-    cache.getInstance = function () {
-        return cache._instance;
-    };
-    cache.prototype.get = function (collectioName, itemKey, callback, asObject) {
-        var _this = this;
-        //single item request
-        if (typeof (itemKey) === 'string') {
-            if (this.cache[collectioName] && this.cache[collectioName][itemKey]) {
-                callback(this.cache[collectioName][itemKey]);
-                return;
-            }
-            else {
-                dal.getSingle(collectioName, itemKey, function (result) {
-                    if (result !== null) {
-                        if (!_this.cache[collectioName])
-                            _this.cache[collectioName] = {};
-                        _this.cache[collectioName][itemKey] = result;
-                        callback(JSON.parse(JSON.stringify(_this.cache[collectioName][itemKey])));
-                        return;
-                    }
-                });
-            }
-        }
-        else {
-            //array item request
-            var arr_for_request = [];
-            var resultArr = {};
-            var tabIds = itemKey;
-            tabIds.forEach(function (tab_id) {
-                if (!_this.cache[collectioName] || !_this.cache[collectioName][tab_id] && tab_id !== null) {
-                    arr_for_request.push(tab_id);
-                }
-                else
-                    resultArr[tab_id] = _this.cache[collectioName][tab_id];
-            });
-            if (arr_for_request.length === 0) {
-                if (asObject) {
-                    callback(resultArr);
-                    return;
+}
+exports.Singleton = Singleton;
+class Cache extends Singleton {
+    static getInstance() {
+        if (!this._instance)
+            this._instance = new Cache();
+        return this._instance;
+    }
+    static clone(value) {
+        return JSON.parse(JSON.stringify(value));
+    }
+    static get(collectioName, itemKey, asObject) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (typeof (itemKey) === 'string') {
+                if (this.cache[collectioName] && this.cache[collectioName][itemKey]) {
+                    return this.clone(this.cache[collectioName][itemKey]);
                 }
                 else {
-                    var asArr1 = [];
-                    for (var cname in resultArr) {
-                        asArr1.push(resultArr[cname]);
+                    let result = yield dal.getSingle(collectioName, itemKey);
+                    if (result) {
+                        if (!this.cache[collectioName])
+                            this.cache[collectioName] = {};
+                        this.cache[collectioName][itemKey] = result;
+                        return this.clone(this.cache[collectioName][itemKey]);
                     }
-                    callback(JSON.parse(JSON.stringify(asArr1)));
-                    return;
                 }
             }
             else {
-                dal.getSet(arr_for_request, collectioName, function (result) {
-                    if (result !== null) {
-                        result.forEach(function (cacheItem) {
-                            if (!_this.cache[collectioName])
-                                _this.cache[collectioName] = {};
-                            _this.cache[collectioName][cacheItem._id] = cacheItem;
-                            resultArr[cacheItem._id] = cacheItem;
-                        });
-                        if (asObject) {
-                            callback(JSON.parse(JSON.stringify(resultArr)));
-                            return;
-                        }
-                        else {
-                            var asArr = [];
-                            for (var cname in resultArr) {
-                                asArr.push(resultArr[cname]);
-                            }
-                            callback(JSON.parse(JSON.stringify(asArr)));
-                            return;
-                        }
-                    }
-                });
-            }
-        }
-    };
-    cache.prototype.getCollection = function (collectioName, asObject, callback) {
-        var _this = this;
-        if (this.cache[collectioName]) {
-            if (asObject) {
-                var obj = {};
-                this.cache[collectioName].forEach(function (item) {
-                    obj[item._id] = item;
-                });
-                callback(obj);
-            }
-            else
-                callback(JSON.parse(JSON.stringify(this.cache[collectioName])));
-            return;
-        }
-        else {
-            dal.getCollection(collectioName, function (result) {
-                if (result !== null) {
-                    _this.cache[collectioName] = result;
-                    if (asObject) {
-                        var obj = {};
-                        _this.cache[collectioName].forEach(function (item) {
-                            obj[item._id] = item;
-                        });
-                        callback(JSON.parse(JSON.stringify(obj)));
+                var arr_for_request = [];
+                var resultArr = {};
+                var tabIds = itemKey;
+                tabIds.forEach((tab_id) => {
+                    if (!this.cache[collectioName] || !this.cache[collectioName][tab_id] && tab_id !== null) {
+                        arr_for_request.push(tab_id);
                     }
                     else
-                        callback(JSON.parse(JSON.stringify(_this.cache[collectioName])));
-                    return;
+                        resultArr[tab_id] = this.cache[collectioName][tab_id];
+                });
+                if (arr_for_request.length === 0) {
+                    if (asObject) {
+                        return resultArr;
+                    }
+                    else {
+                        var asArr1 = [];
+                        for (var cname in resultArr) {
+                            asArr1.push(resultArr[cname]);
+                        }
+                        return this.clone(asArr1);
+                    }
                 }
-            });
-        }
-    };
-    cache.prototype.expire = function (collectioName, itemKey) {
+                else {
+                    let result = yield dal.getSet(arr_for_request, collectioName, (result) => {
+                        if (result !== null) {
+                            result.forEach((cacheItem) => {
+                                if (!this.cache[collectioName])
+                                    this.cache[collectioName] = {};
+                                this.cache[collectioName][cacheItem._id] = cacheItem;
+                                resultArr[cacheItem._id] = cacheItem;
+                            });
+                            if (asObject) {
+                                return this.clone(resultArr);
+                            }
+                            else {
+                                var asArr = [];
+                                for (var cname in resultArr) {
+                                    asArr.push(resultArr[cname]);
+                                }
+                                return this.clone(asArr);
+                            }
+                        }
+                    });
+                }
+            }
+        });
+    }
+    static getCollection(collectioName, asObject) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.cache[collectioName]) {
+                if (asObject) {
+                    var obj = {};
+                    this.cache[collectioName].forEach((item) => {
+                        obj[item._id] = item;
+                    });
+                    return obj;
+                }
+                else
+                    return this.clone(this.cache[collectioName]);
+            }
+            else {
+                let result = yield dal.getCollection(collectioName);
+                if (result !== null) {
+                    this.cache[collectioName] = result;
+                    if (asObject) {
+                        var obj = {};
+                        this.cache[collectioName].forEach((item) => {
+                            obj[item._id] = item;
+                        });
+                        return this.clone(obj);
+                    }
+                    else
+                        return this.clone(this.cache[collectioName]);
+                }
+            }
+        });
+    }
+    static expire(collectioName, itemKey) {
         if (itemKey.toString)
             itemKey = itemKey.toString();
         if (this.cache[collectioName] && this.cache[collectioName][itemKey])
             delete this.cache[collectioName][itemKey];
-    };
-    cache._instance = new cache();
-    return cache;
-}(Singleton));
-exports = module.exports = cache.getInstance();
+    }
+}
+Cache.cache = {};
+exports.Cache = Cache;
+//# sourceMappingURL=index.js.map
