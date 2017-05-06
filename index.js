@@ -69,26 +69,25 @@ class Cache extends Singleton {
                     }
                 }
                 else {
-                    let result = yield dal.getSet(arr_for_request, collectioName, (result) => {
-                        if (result !== null) {
-                            result.forEach((cacheItem) => {
-                                if (!this.cache[collectioName])
-                                    this.cache[collectioName] = {};
-                                this.cache[collectioName][cacheItem._id] = cacheItem;
-                                resultArr[cacheItem._id] = cacheItem;
-                            });
-                            if (asObject) {
-                                return this.clone(resultArr);
-                            }
-                            else {
-                                var asArr = [];
-                                for (var cname in resultArr) {
-                                    asArr.push(resultArr[cname]);
-                                }
-                                return this.clone(asArr);
-                            }
+                    let result = yield dal.getSet(arr_for_request, collectioName);
+                    if (result) {
+                        result.forEach((cacheItem) => {
+                            if (!this.cache[collectioName])
+                                this.cache[collectioName] = {};
+                            this.cache[collectioName][cacheItem._id] = cacheItem;
+                            resultArr[cacheItem._id] = cacheItem;
+                        });
+                        if (asObject) {
+                            return this.clone(resultArr);
                         }
-                    });
+                        else {
+                            var asArr = [];
+                            for (var cname in resultArr) {
+                                asArr.push(resultArr[cname]);
+                            }
+                            return this.clone(asArr);
+                        }
+                    }
                 }
             }
         });

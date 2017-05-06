@@ -79,31 +79,32 @@ export class Cache extends Singleton {
 
             }
             else {
-                let result = await dal.getSet(arr_for_request, collectioName, (result: any) => {
-                    if (result !== null) {
-                        result.forEach((cacheItem: any) => {
-                            if (!this.cache[collectioName])
-                                this.cache[collectioName] = {};
+                let result = await dal.getSet(arr_for_request, collectioName);
 
-                            this.cache[collectioName][cacheItem._id] = cacheItem;
-                            resultArr[cacheItem._id] = cacheItem;
-                        });
+                if (result) {
+                    result.forEach((cacheItem: any) => {
+                        if (!this.cache[collectioName])
+                            this.cache[collectioName] = {};
+
+                        this.cache[collectioName][cacheItem._id] = cacheItem;
+                        resultArr[cacheItem._id] = cacheItem;
+                    });
 
 
-                        if (asObject) {
-                            return this.clone(resultArr);
+                    if (asObject) {
+                        return this.clone(resultArr);
 
-                        }
-                        else {
-                            var asArr: any = [];
-                            for (var cname in resultArr) {
-                                asArr.push(resultArr[cname]);
-                            }
-                            return this.clone(asArr);
-
-                        }
                     }
-                });
+                    else {
+                        var asArr: any = [];
+                        for (var cname in resultArr) {
+                            asArr.push(resultArr[cname]);
+                        }
+                        return this.clone(asArr);
+
+                    }
+                }
+
             }
         }
     }

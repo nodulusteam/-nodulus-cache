@@ -28,6 +28,7 @@
   },
   "dependencies": {
     "@nodulus/data": "*",
+    "@nodulus/data-diskdb": "0.0.9",
     "typescript": "^2.3.2"
   }
 }
